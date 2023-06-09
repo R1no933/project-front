@@ -4,8 +4,42 @@
     <script src=https://code.jquery.com/jquery-3.6.0.min.js></script>
     <link href="/css/my.css" rel="stylesheet">
 </head>
-<body>
-<h1>RPG admin panel</h1>
+<body onload="show_players_info()">
+    <h1>RPG admin panel</h1>
+    <h2>Account's list</h2>
+    <table id = "account_list">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Title</th>
+                <th>Profession</th>
+                <th>Race</th>
+                <th>Level</th>
+                <th>Birthday</th>
+                <th>Banned</th>
+            </tr>
+        </thead>
+    </table>
 
+    <script>
+        function show_players_info() {
+            let endpoint = '/rest/players';
+            $.get(endpoint, function (responce) {
+                $.each(responce, function (index, item) {
+                    $('<tbody><tr>').html('<td>'
+                        + item.id + '</td><td>'
+                        + item.name + '</td><td>'
+                        + item.title + '</td><td>'
+                        + item.race + '</td><td>'
+                        + item.profession + '</td><td>'
+                        + item.level + '</td><td>'
+                        + new Date(item.birthday).toLocaleDateString() + '</td><td>'
+                        + item.banned + '</td>'
+                    ).appendTo('#account_list')
+                })
+            })
+        }
+    </script>
 </body>
 </html>

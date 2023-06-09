@@ -1,0 +1,19 @@
+table {
+    border: 2px solid black;
+    border-collapse: collapse;
+}
+
+th {
+    border: 2px solid black;
+    border-collapse: collapse;
+    text-align: center;
+    font-size: 28px;
+    background-color: darkgray;
+}
+
+td {
+    border: 2px solid black;
+    border-collapse: collapse;
+    font-size: 20px;
+    background-color: lightgray;
+}
