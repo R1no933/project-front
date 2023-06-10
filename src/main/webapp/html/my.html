@@ -20,8 +20,8 @@
                 <th>#</th>
                 <th>Name</th>
                 <th>Title</th>
-                <th>Profession</th>
                 <th>Race</th>
+                <th>Profession</th>
                 <th>Level</th>
                 <th>Birthday</th>
                 <th>Banned</th>
@@ -32,6 +32,57 @@
     </table>
 
     <div id="paging">Pages:</div>
+    <hr>
+
+    <h2>Create new account:</h2>
+
+    <label for="input_new_name">Name:</label>
+    <input type="text" id="input_new_name" name="name" required size="12" maxlength="12" placeholder="Enter name">
+    <br>
+    <label for="input_new_title">Title:</label>
+    <input type="text" id="input_new_title" name="title" required size="30" maxlength="30" placeholder="Enter title">
+    <br>
+    <label for="select_new_race">Race:</label>
+    <select id="select_new_race" name="race">
+        <option value="HUMAN">HUMAN</option>
+        <option value="DWARF">DWARF</option>
+        <option value="ELF">ELF</option>
+        <option value="GIANT">GIANT</option>
+        <option value="ORC">ORC</option>
+        <option value="TROLL">TROLL</option>
+        <option value="HOBBIT">HOBBIT</option>
+    </select>
+    <br>
+    <label for="select_new_prof">Profession</label>
+    <select id="select_new_prof" name="profession">
+        <option value="WARRIOR">WARRIOR</option>
+        <option value="ROGUE">ROGUE</option>
+        <option value="SORCERE">SORCERE</option>
+        <option value="CLERIC">CLERIC</option>
+        <option value="PALADIN">PALADIN</option>
+        <option value="NAZGUL">NAZGUL</option>
+        <option value="WARLOCK">WARLOCK</option>
+        <option value="DRUID">DRUID</option>
+    </select>
+    <br>
+    <label for="input_new_lvl">Level:</label>
+    <input type="number" id="input_new_lvl" name="level" min="0" max="100">
+    <br>
+    <label for="change_new_date">Birthday:</label>
+    <input type="date" id="change_new_date" name="birthday" min="2000-01-01" max="3000-12-12">
+    <br>
+    <label for="select_new_status">Banned:</label>
+    <select id="select_new_status" name="banned">
+        <option value="false">false</option>
+        <option value="true">true</option>
+    </select>
+    <br>
+    <br>
+    <span>
+        <button type="submit" onclick="create_new_char()" class="save_new_char">
+            <img src="/img/save.png">
+        </button>
+    </span>
 
     <script>
         //Функция для запроса и отображения информации о пользователях в таблицу
@@ -176,12 +227,54 @@
                 dataType: 'json',
                 contentType: 'application/json;charset=UTF-8',
                 async: false,
-                data: JSON.stringify({"name": name,
-                                    "title": title,
-                                    "race": race,
-                                    "profession": prof,
-                                    "banned": ban}),
+                data: JSON.stringify({
+                    "name": name,
+                    "title": title,
+                    "race": race,
+                    "profession": prof,
+                    "banned": ban}),
                 success: function () {
+                    show_players_info(get_current_page_number())
+                }
+            })
+        }
+
+        //Функция создания нового аккаунта
+        function create_new_char() {
+            let new_name = $("#input_new_name").val()
+            let new_title = $("#input_new_title").val()
+            let new_race = $("#select_new_race").val()
+            let new_prof = $("#select_new_prof").val()
+            let new_level = $("#input_new_lvl").val()
+            let new_birthday = $("#change_new_date").val()
+            let new_ban = $("#select_new_status").val()
+
+            let current_url = window.location.href
+            let endpoint = "/rest/players"
+
+            $.ajax({
+                url: endpoint,
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json;charset=UTF-8',
+                async: false,
+                data: JSON.stringify({
+                    "name": new_name,
+                    "title": new_title,
+                    "race": new_race,
+                    "profession": new_prof,
+                    "level": new_level,
+                    "birthday": new Date(new_birthday).getTime(),
+                    "banned": new_ban
+                }),
+                success: function () {
+                    $("#input_new_name").val("")
+                    $("#input_new_title").val("")
+                    $("#select_new_race").val("HUMAN")
+                    $("#select_new_prof").val("WARRIOR")
+                    $("#input_new_lvl").val(0)
+                    $("#change_new_date").val("")
+                    $("#select_new_status").val("")
                     show_players_info(get_current_page_number())
                 }
             })

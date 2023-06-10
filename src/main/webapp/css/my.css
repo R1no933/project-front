@@ -15,6 +15,7 @@ td {
 }
 
 th {
+    padding: 5px;
     text-align: center;
     font-size: 28px;
     background-color: darkgray;
@@ -28,4 +29,48 @@ label {
 #paging {
     font-size: 24px;
     font-weight: bold;
+}
+
+button.paging_btn_class {
+    margin-right: 5px;
+    margin-left: 5px;
+}
+
+input#input_new_name {
+    margin-left: 60px;
+    width: 180px;
+}
+
+input#input_new_title {
+    margin-left: 71px;
+    width: 180px;
+}
+
+select#select_new_race {
+    margin-left: 68px;
+    width: 180px;
+}
+
+select#select_new_prof {
+    margin-left: 29px;
+    width: 180px;
+}
+
+input#input_new_lvl {
+    margin-left: 62px;
+    width: 180px;
+}
+
+input#change_new_date {
+    margin-left: 37px;
+    width: 180px;
+}
+
+select#select_new_status {
+    margin-left: 46px;
+    width: 180px;
+}
+
+button.save_new_char {
+    margin-left: 116px;
 }
