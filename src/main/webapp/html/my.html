@@ -4,8 +4,241 @@
     <script src=https://code.jquery.com/jquery-3.6.0.min.js></script>
     <link href="/css/my.css" rel="stylesheet">
 </head>
-<body>
-<h1>RPG admin panel</h1>
+<body onload="show_players_info(0)">
+    <h1>RPG admin panel</h1>
+    <h2>Account's list:</h2>
+    <label for="count_per_page">Count per page:</label>
+    <select id="count_per_page" onchange="show_players_info(0)">
+        <option value="3">3</option>
+        <option value="6">6</option>
+        <option value="9">9</option>
+        <option value="12">12</option>
+    </select>
+    <table id = "account_list">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Title</th>
+                <th>Profession</th>
+                <th>Race</th>
+                <th>Level</th>
+                <th>Birthday</th>
+                <th>Banned</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+    </table>
 
+    <div id="paging">Pages:</div>
+
+    <script>
+        //Функция для запроса и отображения информации о пользователях в таблицу
+        function show_players_info(page_number) {
+            $('tbody:has(td)').remove()
+            let endpoint = '/rest/players?'
+            let countPerPage = $('#count_per_page').val()
+
+            if (countPerPage == null) {
+                countPerPage = 3
+            }
+
+            endpoint = endpoint.concat('pageSize=').concat(countPerPage)
+
+            if(page_number == null) {
+                page_number = 0
+            }
+
+            endpoint = endpoint.concat('&pageNumber=').concat(page_number)
+
+            $.get(endpoint, function (responce) {
+                $.each(responce, function (index, item) {
+                    $('<tbody><tr>').html('<td>'
+                        + item.id + '</td><td>'
+                        + item.name + '</td><td>'
+                        + item.title + '</td><td>'
+                        + item.race + '</td><td>'
+                        + item.profession + '</td><td>'
+                        + item.level + '</td><td>'
+                        + new Date(item.birthday).toLocaleDateString() + '</td><td>'
+                        + item.banned + '</td><td>'
+                        + "<button id='edit_btn_" + item.id + "' onclick='edit_user(" + item.id + ")'>"
+                        + "<img src='/img/edit.png'>"
+                        + '</button>' + '</td><td>'
+                        + "<button id='delete_btn_" + item.id + "' onclick='delete_user(" + item.id + ")'>"
+                        + "<img src='/img/delete.png'>"
+                        + '</button>' + '</td>'
+                    ).appendTo('#account_list')
+                })
+            })
+
+            //Отображение пейджинга
+            let usersCount = get_users_count()
+
+            let totalPages = Math.ceil(usersCount / countPerPage)
+
+            $('button.paging_btn_class').remove()
+
+            for(let  i = 0; i < totalPages; i++) {
+                let btn_tag = '<button>' + (i + 1) + '</button>'
+                let btn = $(btn_tag)
+                    .attr('onclick', 'show_players_info('+ i +')')
+                    .attr('id', 'paging_'+ i)
+                    .addClass('paging_btn_class')
+                $('#paging').append(btn)
+            }
+
+            let current_btn_id = '#paging_' + page_number
+            $(current_btn_id).css('color', 'red')
+        }
+
+        //Функция для получения общего количества пользователей
+        function get_users_count() {
+            let endpoint = '/rest/players/count'
+            let defaultRes = 0
+            $.ajax({
+                url: endpoint,
+                async: false,
+                success: function (count) {
+                    defaultRes = parseInt(count)
+                }
+            })
+            return defaultRes
+        }
+
+        //Функция для удаления пользователя
+        function delete_user(id) {
+            let endpoint = '/rest/players/' + id
+            $.ajax({
+                url: endpoint,
+                type: 'DELETE',
+                success: function () {
+                    show_players_info(get_current_page_number())
+                }
+            })
+        }
+
+        //Функция для редактирования пользователя
+        function edit_user(id) {
+            let edit_btn_id = '#edit_btn_' + id
+            let delete_btn_id = '#delete_btn_' + id
+
+            $(delete_btn_id).remove()
+
+            let save_image = "<img src = '/img/save.png'>"
+            $(edit_btn_id).html(save_image)
+
+            let current_element = $(edit_btn_id).parent().parent()
+            let current_element_chld = current_element.children()
+
+            let name_element = current_element_chld[1]
+            name_element.innerHTML = "<input id='input_name_" + id + "' type='text' value='" + name_element.innerHTML +"'>"
+
+            let title_element = current_element_chld[2]
+            title_element.innerHTML = "<input id='input_title_" + id + "' type='text' value='" + title_element.innerHTML +"'>"
+
+            let race_element = current_element_chld[3]
+            let race_id = "#select_race_" + id
+            let race_current_value = race_element.innerHTML
+            race_element.innerHTML = race_list_HTML(id)
+            $(race_id).val(race_current_value).change()
+
+            let prof_element = current_element_chld[4]
+            let prof_id = "#select_prof_" + id
+            let prof_current_value = prof_element.innerHTML
+            prof_element.innerHTML = prof_list_HTML(id)
+            $(prof_id).val(prof_current_value).change()
+
+            let ban_elenemt = current_element_chld[7]
+            let ban_id = "#select_ban_" + id
+            let ban_current_value = ban_elenemt.innerHTML
+            ban_elenemt.innerHTML = banned_list_HTML(id)
+            $(ban_id).val(ban_current_value).change()
+
+            let save_tag = "save_change(" + id + ")"
+            $(edit_btn_id).attr('onclick', save_tag)
+        }
+
+        //Функция сохранения изменений по нажатию на кнопку
+        function save_change(id) {
+            let endpoint = '/rest/players/' + id
+
+            let name = $("#input_name_" + id).val()
+            let title = $("#input_title_" + id).val()
+            let race = $("#select_race_" + id).val()
+            let prof = $("#select_prof_" + id).val()
+            let ban = $("#select_ban_" + id).val()
+
+            $.ajax({
+                url: endpoint,
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json;charset=UTF-8',
+                async: false,
+                data: JSON.stringify({"name": name,
+                                    "title": title,
+                                    "race": race,
+                                    "profession": prof,
+                                    "banned": ban}),
+                success: function () {
+                    show_players_info(get_current_page_number())
+                }
+            })
+        }
+
+        //Вспомогательная функция для выпадающего списка расс
+        function race_list_HTML(id) {
+            let current_id = "select_race_" + id
+            return "<label for='race'>"
+                    + "<select id=" + current_id + " name='race'>"
+                    + "<option vale='HUMAN'>HUMAN</option>"
+                    + "<option vale='DWARF'>DWARF</option>"
+                    + "<option vale='ELF'>ELF</option>"
+                    + "<option vale='GIANT'>GIANT</option>"
+                    + "<option vale='ORC'>ORC</option>"
+                    + "<option vale='TROLL'>TROLL</option>"
+                    + "<option vale='HOBBIT'>HOBBIT</option>"
+                    + "</select>"
+        }
+
+        //Вспомогательная функция для выпадающего списка профессий
+        function prof_list_HTML(id) {
+            let current_id = "select_prof_" + id
+            return "<label for='prof'>"
+                + "<select id=" + current_id + " name='prof'>"
+                + "<option vale='WARRIOR'>WARRIOR</option>"
+                + "<option vale='ROGUE'>ROGUE</option>"
+                + "<option vale='SORCERER'>SORCERER</option>"
+                + "<option vale='CLERIC'>CLERIC</option>"
+                + "<option vale='PALADIN'>PALADIN</option>"
+                + "<option vale='NAZGUL'>NAZGUL</option>"
+                + "<option vale='WARLOCK'>WARLOCK</option>"
+                + "<option vale='DRUID'>DRUID</option>"
+                + "</select>"
+        }
+
+        //Вспомогательная функция для выпадающего списка статуса (бан/активна)
+        function banned_list_HTML(id) {
+            let current_id = "select_ban_" + id
+            return "<label for='ban'>"
+                + "<select id=" + current_id + " name='ban'>"
+                + "<option vale='true'>true</option>"
+                + "<option vale='false'>false</option>"
+                + "</select>"
+        }
+
+        //Вспомогательная функция для получения номера текущей страницы
+        function get_current_page_number() {
+            let current_page = 0
+            $('button:parent(div)').each(function () {
+                if ($(this).css('color') === 'rgb(255, 0, 0)') {
+                    current_page = $(this).text()
+                }
+            })
+
+            return parseInt(current_page) - 1
+        }
+    </script>
 </body>
 </html>

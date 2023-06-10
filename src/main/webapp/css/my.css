@@ -1,0 +1,31 @@
+table {
+    border: 2px solid black;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 2px solid black;
+    border-collapse: collapse;
+}
+
+td {
+    font-size: 20px;
+    background-color: lightgray;
+    padding: 10px;
+}
+
+th {
+    text-align: center;
+    font-size: 28px;
+    background-color: darkgray;
+}
+
+label {
+    font-size: 20px;
+    margin-top: 10px;
+}
+
+#paging {
+    font-size: 24px;
+    font-weight: bold;
+}
