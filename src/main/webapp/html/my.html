@@ -63,7 +63,7 @@
                         + item.level + '</td><td>'
                         + new Date(item.birthday).toLocaleDateString() + '</td><td>'
                         + item.banned + '</td><td>'
-                        + "<button id='edit_btn_" + item.id + "'>"
+                        + "<button id='edit_btn_" + item.id + "' onclick='edit_user(" + item.id + ")'>"
                         + "<img src='/img/edit.png'>"
                         + '</button>' + '</td><td>'
                         + "<button id='delete_btn_" + item.id + "' onclick='delete_user(" + item.id + ")'>"
@@ -117,6 +117,85 @@
                     show_players_info(get_current_page_number())
                 }
             })
+        }
+
+        //Функция для редактирования пользователя
+        function edit_user(id) {
+            let edit_btn_id = '#edit_btn_' + id
+            let delete_btn_id = '#delete_btn_' + id
+
+            $(delete_btn_id).remove()
+
+            let save_image = "<img src = '/img/save.png'>"
+            $(edit_btn_id).html(save_image)
+
+            let current_element = $(edit_btn_id).parent().parent()
+            let current_element_chld = current_element.children()
+
+            let name_element = current_element_chld[1]
+            name_element.innerHTML = "<input id='name_input_" + id + "' type='text' value='" + name_element.innerHTML +"'>"
+
+            let title_element = current_element_chld[2]
+            title_element.innerHTML = "<input id='title_input_" + id + "' type='text' value='" + title_element.innerHTML +"'>"
+
+            let race_element = current_element_chld[3]
+            let race_id = "#select_race" + id
+            let race_current_value = race_element.innerHTML
+            race_element.innerHTML = race_list_HTML(id)
+            $(race_id).val(race_current_value).change()
+
+            let prof_element = current_element_chld[4]
+            let prof_id = "#select_prof" + id
+            let prof_current_value = prof_element.innerHTML
+            prof_element.innerHTML = prof_list_HTML(id)
+            $(prof_id).val(prof_current_value).change()
+
+            let ban_elenemt = current_element_chld[7]
+            let ban_id = "#select_ban" + id
+            let ban_current_value = ban_elenemt.innerHTML
+            ban_elenemt.innerHTML = banned_list_HTML(id)
+            $(ban_id).val(ban_current_value).change()
+        }
+
+        //Вспомогательная функция для выпадающего списка расс
+        function race_list_HTML(id) {
+            let current_id = "select_race" + id
+            return "<label for='race'>"
+                    + "<select id=" + current_id + " name='race'>"
+                    + "<option vale='HUMAN'>HUMAN</option>"
+                    + "<option vale='DWARF'>DWARF</option>"
+                    + "<option vale='ELF'>ELF</option>"
+                    + "<option vale='GIANT'>GIANT</option>"
+                    + "<option vale='ORC'>ORC</option>"
+                    + "<option vale='TROLL'>TROLL</option>"
+                    + "<option vale='HOBBIT'>HOBBIT</option>"
+                    + "</select>"
+        }
+
+        //Вспомогательная функция для выпадающего списка профессий
+        function prof_list_HTML(id) {
+            let current_id = "select_prof" + id
+            return "<label for='prof'>"
+                + "<select id=" + current_id + " name='prof'>"
+                + "<option vale='WARRIOR'>WARRIOR</option>"
+                + "<option vale='ROGUE'>ROGUE</option>"
+                + "<option vale='SORCERER'>SORCERER</option>"
+                + "<option vale='CLERIC'>CLERIC</option>"
+                + "<option vale='PALADIN'>PALADIN</option>"
+                + "<option vale='NAZGUL'>NAZGUL</option>"
+                + "<option vale='WARLOCK'>WARLOCK</option>"
+                + "<option vale='DRUID'>DRUID</option>"
+                + "</select>"
+        }
+
+        //Вспомогательная функция для выпадающего списка статуса (бан/активна)
+        function banned_list_HTML(id) {
+            let current_id = "select_ban" + id
+            return "<label for='ban'>"
+                + "<select id=" + current_id + " name='ban'>"
+                + "<option vale='true'>true</option>"
+                + "<option vale='false'>false</option>"
+                + "</select>"
         }
 
         //Вспомогательная функция для получения номера текущей страницы
