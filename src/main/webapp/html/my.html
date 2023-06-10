@@ -25,6 +25,8 @@
                 <th>Level</th>
                 <th>Birthday</th>
                 <th>Banned</th>
+                <th>Edit</th>
+                <th>Delete</th>
             </tr>
         </thead>
     </table>
@@ -60,7 +62,13 @@
                         + item.profession + '</td><td>'
                         + item.level + '</td><td>'
                         + new Date(item.birthday).toLocaleDateString() + '</td><td>'
-                        + item.banned + '</td>'
+                        + item.banned + '</td><td>'
+                        + "<button id='edit_btn_" + item.id + "'>"
+                        + "<img src='/img/edit.png'>"
+                        + '</button>' + '</td><td>'
+                        + "<button id='delete_btn_" + item.id + "' onclick='delete_user(" + item.id + ")'>"
+                        + "<img src='/img/delete.png'>"
+                        + '</button>' + '</td>'
                     ).appendTo('#account_list')
                 })
             })
@@ -97,6 +105,30 @@
                 }
             })
             return defaultRes
+        }
+
+        //Функция для удаления пользователя
+        function delete_user(id) {
+            let endpoint = '/rest/players/' + id
+            $.ajax({
+                url: endpoint,
+                type: 'DELETE',
+                success: function () {
+                    show_players_info(get_current_page_number())
+                }
+            })
+        }
+
+        //Вспомогательная функция для получения номера текущей страницы
+        function get_current_page_number() {
+            let current_page = 0
+            $('button:parent(div)').each(function () {
+                if ($(this).css('color') === 'rgb(255, 0, 0)') {
+                    current_page = $(this).text()
+                }
+            })
+
+            return parseInt(current_page) - 1
         }
     </script>
 </body>
