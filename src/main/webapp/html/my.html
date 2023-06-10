@@ -4,9 +4,16 @@
     <script src=https://code.jquery.com/jquery-3.6.0.min.js></script>
     <link href="/css/my.css" rel="stylesheet">
 </head>
-<body onload="show_players_info()">
+<body onload="show_players_info(0)">
     <h1>RPG admin panel</h1>
-    <h2>Account's list</h2>
+    <h2>Account's list:</h2>
+    <label for="count_per_page">Count per page:</label>
+    <select id="count_per_page" onchange="show_players_info(0)">
+        <option value="3">3</option>
+        <option value="6">6</option>
+        <option value="9">9</option>
+        <option value="12">12</option>
+    </select>
     <table id = "account_list">
         <thead>
             <tr>
@@ -22,9 +29,27 @@
         </thead>
     </table>
 
+    <div id="paging">Pages:</div>
+
     <script>
-        function show_players_info() {
-            let endpoint = '/rest/players';
+        //Функция для запроса и отображения информации о пользователях в таблицу
+        function show_players_info(page_number) {
+            $('tbody:has(td)').remove()
+            let endpoint = '/rest/players?'
+            let countPerPage = $('#count_per_page').val()
+
+            if (countPerPage == null) {
+                countPerPage = 3
+            }
+
+            endpoint = endpoint.concat('pageSize=').concat(countPerPage)
+
+            if(page_number == null) {
+                page_number = 0
+            }
+
+            endpoint = endpoint.concat('&pageNumber=').concat(page_number)
+
             $.get(endpoint, function (responce) {
                 $.each(responce, function (index, item) {
                     $('<tbody><tr>').html('<td>'
@@ -39,6 +64,39 @@
                     ).appendTo('#account_list')
                 })
             })
+
+            //Отображение пейджинга
+            let usersCount = get_users_count()
+
+            let totalPages = Math.ceil(usersCount / countPerPage)
+
+            $('button.paging_btn_class').remove()
+
+            for(let  i = 0; i < totalPages; i++) {
+                let btn_tag = '<button>' + (i + 1) + '</button>'
+                let btn = $(btn_tag)
+                    .attr('onclick', 'show_players_info('+ i +')')
+                    .attr('id', 'paging_'+ i)
+                    .addClass('paging_btn_class')
+                $('#paging').append(btn)
+            }
+
+            let current_btn_id = '#paging_' + page_number
+            $(current_btn_id).css('color', 'red')
+        }
+
+        //Функция для получения общего количества пользователей
+        function get_users_count() {
+            let endpoint = '/rest/players/count'
+            let defaultRes = 0
+            $.ajax({
+                url: endpoint,
+                async: false,
+                success: function (count) {
+                    defaultRes = parseInt(count)
+                }
+            })
+            return defaultRes
         }
     </script>
 </body>
