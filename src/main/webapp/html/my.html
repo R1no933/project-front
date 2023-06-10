@@ -133,33 +133,63 @@
             let current_element_chld = current_element.children()
 
             let name_element = current_element_chld[1]
-            name_element.innerHTML = "<input id='name_input_" + id + "' type='text' value='" + name_element.innerHTML +"'>"
+            name_element.innerHTML = "<input id='input_name_" + id + "' type='text' value='" + name_element.innerHTML +"'>"
 
             let title_element = current_element_chld[2]
-            title_element.innerHTML = "<input id='title_input_" + id + "' type='text' value='" + title_element.innerHTML +"'>"
+            title_element.innerHTML = "<input id='input_title_" + id + "' type='text' value='" + title_element.innerHTML +"'>"
 
             let race_element = current_element_chld[3]
-            let race_id = "#select_race" + id
+            let race_id = "#select_race_" + id
             let race_current_value = race_element.innerHTML
             race_element.innerHTML = race_list_HTML(id)
             $(race_id).val(race_current_value).change()
 
             let prof_element = current_element_chld[4]
-            let prof_id = "#select_prof" + id
+            let prof_id = "#select_prof_" + id
             let prof_current_value = prof_element.innerHTML
             prof_element.innerHTML = prof_list_HTML(id)
             $(prof_id).val(prof_current_value).change()
 
             let ban_elenemt = current_element_chld[7]
-            let ban_id = "#select_ban" + id
+            let ban_id = "#select_ban_" + id
             let ban_current_value = ban_elenemt.innerHTML
             ban_elenemt.innerHTML = banned_list_HTML(id)
             $(ban_id).val(ban_current_value).change()
+
+            let save_tag = "save_change(" + id + ")"
+            $(edit_btn_id).attr('onclick', save_tag)
+        }
+
+        //Функция сохранения изменений по нажатию на кнопку
+        function save_change(id) {
+            let endpoint = '/rest/players/' + id
+
+            let name = $("#input_name_" + id).val()
+            let title = $("#input_title_" + id).val()
+            let race = $("#select_race_" + id).val()
+            let prof = $("#select_prof_" + id).val()
+            let ban = $("#select_ban_" + id).val()
+
+            $.ajax({
+                url: endpoint,
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json;charset=UTF-8',
+                async: false,
+                data: JSON.stringify({"name": name,
+                                    "title": title,
+                                    "race": race,
+                                    "profession": prof,
+                                    "banned": ban}),
+                success: function () {
+                    show_players_info(get_current_page_number())
+                }
+            })
         }
 
         //Вспомогательная функция для выпадающего списка расс
         function race_list_HTML(id) {
-            let current_id = "select_race" + id
+            let current_id = "select_race_" + id
             return "<label for='race'>"
                     + "<select id=" + current_id + " name='race'>"
                     + "<option vale='HUMAN'>HUMAN</option>"
@@ -174,7 +204,7 @@
 
         //Вспомогательная функция для выпадающего списка профессий
         function prof_list_HTML(id) {
-            let current_id = "select_prof" + id
+            let current_id = "select_prof_" + id
             return "<label for='prof'>"
                 + "<select id=" + current_id + " name='prof'>"
                 + "<option vale='WARRIOR'>WARRIOR</option>"
@@ -190,7 +220,7 @@
 
         //Вспомогательная функция для выпадающего списка статуса (бан/активна)
         function banned_list_HTML(id) {
-            let current_id = "select_ban" + id
+            let current_id = "select_ban_" + id
             return "<label for='ban'>"
                 + "<select id=" + current_id + " name='ban'>"
                 + "<option vale='true'>true</option>"
